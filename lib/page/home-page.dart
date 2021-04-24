@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:math';
 
 class HomePage extends StatefulWidget {
   @override
@@ -84,6 +85,13 @@ class _HomePageState extends State<HomePage> {
                   ElevatedButton(
                       onPressed: () {
                         setState(() {
+                          _signos(" x ");
+                        });
+                      },
+                      child: Text("x")),
+                  ElevatedButton(
+                      onPressed: () {
+                        setState(() {
                           _signos(" / ");
                         });
                       },
@@ -117,10 +125,17 @@ class _HomePageState extends State<HomePage> {
                   ElevatedButton(
                       onPressed: () {
                         setState(() {
-                          _signos(" x ");
+                          _signos(" + ");
                         });
                       },
-                      child: Text("x")),
+                      child: Text("+")),
+                  ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          _signos(" - ");
+                        });
+                      },
+                      child: Text("-")),
                 ],
               ),
               Row(
@@ -150,10 +165,17 @@ class _HomePageState extends State<HomePage> {
                   ElevatedButton(
                       onPressed: () {
                         setState(() {
-                          _signos(" - ");
+                          _signos("√");
                         });
                       },
-                      child: Text("-")),
+                      child: Text("√")),
+                  ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          _signos("²");
+                        });
+                      },
+                      child: Text("x²")),
                 ],
               ),
               Row(
@@ -169,10 +191,24 @@ class _HomePageState extends State<HomePage> {
                   ElevatedButton(
                       onPressed: () {
                         setState(() {
+                          _signos(".");
+                        });
+                      },
+                      child: Text(".")),
+                  ElevatedButton(
+                      onPressed: () {
+                        setState(() {
                           operaciones = "";
                         });
                       },
                       child: Text("C")),
+                  ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          _signos("%");
+                        });
+                      },
+                      child: Text("%")),
                   ElevatedButton(
                       onPressed: () {
                         setState(() {
@@ -185,13 +221,6 @@ class _HomePageState extends State<HomePage> {
                         });
                       },
                       child: Text("=")),
-                  ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          _signos(" + ");
-                        });
-                      },
-                      child: Text("+")),
                 ],
               )
             ],
@@ -227,6 +256,17 @@ class _HomePageState extends State<HomePage> {
       for (String valor in terminos) {
         result *= _calcular(valor);
       }
+    } else if (operacion.indexOf("√") != -1) {
+      List<String> terminos = operacion.split("√");
+      result = sqrt(_calcular(terminos.elementAt(1)));
+    } else if (operacion.indexOf("²") != -1) {
+      List<String> terminos = operacion.split("²");
+      result = _calcular(terminos.elementAt(0));
+      result *= result;
+    } else if (operacion.indexOf("%") != -1) {
+      List<String> terminos = operacion.split("%");
+      result = double.parse(terminos.elementAt(0));
+      result /= 100;
     } else {
       result = double.parse(operacion);
     }
@@ -235,24 +275,77 @@ class _HomePageState extends State<HomePage> {
 
   void _signos(String signo) {
     if (operaciones == "") {
-      operaciones = "0";
-    } else if (operaciones.endsWith(" + ") ||
-        operaciones.endsWith(" - ") ||
-        operaciones.endsWith(" x ") ||
-        operaciones.endsWith(" / ")) {
-      operaciones = operaciones.substring(0, operaciones.length - 3);
+      if (signo == "²" || signo == " x ") {
+        operaciones = "1";
+      } else if (signo == "%") {
+        operaciones = "100";
+      } else if (signo != "√") {
+        operaciones = "0";
+      }
+    } else {
+      if (operaciones.endsWith(" + ") ||
+          operaciones.endsWith(" - ") ||
+          operaciones.endsWith(" x ") ||
+          operaciones.endsWith(" / ")) {
+        if (signo == ".") {
+          operaciones += "0";
+        } else if (signo == "²") {
+          operaciones += "1";
+        } else if (signo == "%") {
+          operaciones += "100";
+        } else if (signo != "√") {
+          operaciones = operaciones.substring(0, operaciones.length - 3);
+        }
+      } else if (operaciones.endsWith(".")) {
+        if (signo == ".") {
+          operaciones = operaciones.substring(0, operaciones.length - 1);
+        } else if (signo == "√") {
+          operaciones += "0 + ";
+        } else {
+          operaciones += "0";
+        }
+      } else {
+        if (signo == ".") {
+          String texto;
+          if (operaciones.lastIndexOf(" ") != -1) {
+            texto = operaciones.substring(operaciones.lastIndexOf(" "));
+          } else {
+            texto = operaciones;
+          }
+          if (texto.contains(".")) {
+            operaciones += " + 0";
+          }
+        } else if (signo == "²") {
+          if (operaciones.endsWith("²")) {
+            operaciones = operaciones.substring(0, operaciones.length - 1);
+          }
+        } else if (signo == "√") {
+          if (operaciones.endsWith("√")) {
+            operaciones = operaciones.substring(0, operaciones.length - 1);
+          } else {
+            operaciones += " + ";
+          }
+        } else if (signo == "%") {
+          if (operaciones.endsWith("%")) {
+            operaciones = operaciones.substring(0, operaciones.length - 1);
+          }
+        }
+      }
     }
     operaciones += signo;
   }
 
   void _numeros(String numero) {
-    if (operaciones.endsWith("0")) {
+    if (operaciones.endsWith("/ 0")) {
       operaciones = operaciones.substring(0, operaciones.length - 1);
+      avisos = "";
+    } else if (operaciones.endsWith("²")) {
+      operaciones += " + ";
+    } else if (operaciones.endsWith(".")) {
+      avisos = "";
     }
     if (numero == "0" && operaciones.endsWith(" / ")) {
       avisos = "Error: División por cero";
-    } else {
-      avisos = "";
     }
     operaciones += numero;
   }
