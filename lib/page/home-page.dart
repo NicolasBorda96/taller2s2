@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 
+import 'package:taller2s2/page/resultados.dart';
+
 class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
@@ -221,6 +223,20 @@ class _HomePageState extends State<HomePage> {
                         });
                       },
                       child: Text("=")),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    ResultadosPage(resultados: resultados)));
+                      },
+                      child: Text("Mostrar resultados")),
                 ],
               )
             ],
