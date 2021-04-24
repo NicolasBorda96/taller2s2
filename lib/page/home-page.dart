@@ -7,7 +7,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   String operaciones = "";
-  String resultados = "";
+  String avisos = "";
+  List<Text> resultados = [];
 
   @override
   Widget build(BuildContext context) {
@@ -26,8 +27,12 @@ class _HomePageState extends State<HomePage> {
           child: Container(
             color: Colors.red,
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(resultados),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: resultados,
+                ),
               ],
             ),
           ),
@@ -36,8 +41,15 @@ class _HomePageState extends State<HomePage> {
           color: Colors.blue,
           height: 100,
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(operaciones),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Text(operaciones),
+                  Text(avisos),
+                ],
+              ),
             ],
           ),
         ),
@@ -51,28 +63,28 @@ class _HomePageState extends State<HomePage> {
                   ElevatedButton(
                       onPressed: () {
                         setState(() {
-                          operaciones += "7";
+                          _numeros("7");
                         });
                       },
                       child: Text("7")),
                   ElevatedButton(
                       onPressed: () {
                         setState(() {
-                          operaciones += "8";
+                          _numeros("8");
                         });
                       },
                       child: Text("8")),
                   ElevatedButton(
                       onPressed: () {
                         setState(() {
-                          operaciones += "9";
+                          _numeros("9");
                         });
                       },
                       child: Text("9")),
                   ElevatedButton(
                       onPressed: () {
                         setState(() {
-                          operaciones += " / ";
+                          _signos(" / ");
                         });
                       },
                       child: Text("/")),
@@ -84,28 +96,28 @@ class _HomePageState extends State<HomePage> {
                   ElevatedButton(
                       onPressed: () {
                         setState(() {
-                          operaciones += "4";
+                          _numeros("4");
                         });
                       },
                       child: Text("4")),
                   ElevatedButton(
                       onPressed: () {
                         setState(() {
-                          operaciones += "5";
+                          _numeros("5");
                         });
                       },
                       child: Text("5")),
                   ElevatedButton(
                       onPressed: () {
                         setState(() {
-                          operaciones += "6";
+                          _numeros("6");
                         });
                       },
                       child: Text("6")),
                   ElevatedButton(
                       onPressed: () {
                         setState(() {
-                          operaciones += " x ";
+                          _signos(" x ");
                         });
                       },
                       child: Text("x")),
@@ -117,28 +129,28 @@ class _HomePageState extends State<HomePage> {
                   ElevatedButton(
                       onPressed: () {
                         setState(() {
-                          operaciones += "1";
+                          _numeros("1");
                         });
                       },
                       child: Text("1")),
                   ElevatedButton(
                       onPressed: () {
                         setState(() {
-                          operaciones += "2";
+                          _numeros("2");
                         });
                       },
                       child: Text("2")),
                   ElevatedButton(
                       onPressed: () {
                         setState(() {
-                          operaciones += "3";
+                          _numeros("3");
                         });
                       },
                       child: Text("3")),
                   ElevatedButton(
                       onPressed: () {
                         setState(() {
-                          operaciones += " - ";
+                          _signos(" - ");
                         });
                       },
                       child: Text("-")),
@@ -150,7 +162,7 @@ class _HomePageState extends State<HomePage> {
                   ElevatedButton(
                       onPressed: () {
                         setState(() {
-                          operaciones += "0";
+                          _numeros("0");
                         });
                       },
                       child: Text("0")),
@@ -164,16 +176,19 @@ class _HomePageState extends State<HomePage> {
                   ElevatedButton(
                       onPressed: () {
                         setState(() {
-                          int result = _calcular(operaciones);
-                          resultados += "$operaciones = $result \n";
-                          operaciones = "$result";
+                          _signos("");
+                          if (avisos == "") {
+                            double result = _calcular(operaciones);
+                            resultados.add(Text("$operaciones = $result"));
+                            operaciones = "$result";
+                          }
                         });
                       },
                       child: Text("=")),
                   ElevatedButton(
                       onPressed: () {
                         setState(() {
-                          operaciones += " + ";
+                          _signos(" + ");
                         });
                       },
                       child: Text("+")),
@@ -186,9 +201,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  int _calcular(String operacion) {
+  double _calcular(String operacion) {
     print(operacion);
-    int result = 0;
+    double result = 0;
     if (operacion.indexOf(" + ") != -1) {
       List<String> terminos = operacion.split(" + ");
       for (String valor in terminos) {
@@ -204,7 +219,7 @@ class _HomePageState extends State<HomePage> {
       List<String> terminos = operacion.split(" / ");
       result += _calcular(terminos.elementAt(0));
       for (var i = 1; i < terminos.length; i++) {
-        result = result ~/ _calcular(terminos.elementAt(i));
+        result = result / _calcular(terminos.elementAt(i));
       }
     } else if (operacion.indexOf(" x ") != -1) {
       result = 1;
@@ -213,8 +228,32 @@ class _HomePageState extends State<HomePage> {
         result *= _calcular(valor);
       }
     } else {
-      result = int.parse(operacion);
+      result = double.parse(operacion);
     }
     return result;
+  }
+
+  void _signos(String signo) {
+    if (operaciones == "") {
+      operaciones = "0";
+    } else if (operaciones.endsWith(" + ") ||
+        operaciones.endsWith(" - ") ||
+        operaciones.endsWith(" x ") ||
+        operaciones.endsWith(" / ")) {
+      operaciones = operaciones.substring(0, operaciones.length - 3);
+    }
+    operaciones += signo;
+  }
+
+  void _numeros(String numero) {
+    if (operaciones.endsWith("0")) {
+      operaciones = operaciones.substring(0, operaciones.length - 1);
+    }
+    if (numero == "0" && operaciones.endsWith(" / ")) {
+      avisos = "Error: División por cero";
+    } else {
+      avisos = "";
+    }
+    operaciones += numero;
   }
 }
