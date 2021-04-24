@@ -7,6 +7,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   String operaciones = "";
+  String resultados = "";
 
   @override
   Widget build(BuildContext context) {
@@ -24,6 +25,11 @@ class _HomePageState extends State<HomePage> {
         Expanded(
           child: Container(
             color: Colors.red,
+            child: Row(
+              children: [
+                Text(resultados),
+              ],
+            ),
           ),
         ),
         Container(
@@ -63,7 +69,13 @@ class _HomePageState extends State<HomePage> {
                         });
                       },
                       child: Text("9")),
-                  ElevatedButton(onPressed: () {}, child: Text("/")),
+                  ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          operaciones += " / ";
+                        });
+                      },
+                      child: Text("/")),
                 ],
               ),
               Row(
@@ -90,7 +102,13 @@ class _HomePageState extends State<HomePage> {
                         });
                       },
                       child: Text("6")),
-                  ElevatedButton(onPressed: () {}, child: Text("*")),
+                  ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          operaciones += " x ";
+                        });
+                      },
+                      child: Text("x")),
                 ],
               ),
               Row(
@@ -117,7 +135,13 @@ class _HomePageState extends State<HomePage> {
                         });
                       },
                       child: Text("3")),
-                  ElevatedButton(onPressed: () {}, child: Text("-")),
+                  ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          operaciones += " - ";
+                        });
+                      },
+                      child: Text("-")),
                 ],
               ),
               Row(
@@ -137,8 +161,22 @@ class _HomePageState extends State<HomePage> {
                         });
                       },
                       child: Text("C")),
-                  ElevatedButton(onPressed: () {}, child: Text("=")),
-                  ElevatedButton(onPressed: () {}, child: Text("+")),
+                  ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          int result = _calcular(operaciones);
+                          resultados += "$operaciones = $result \n";
+                          operaciones = "$result";
+                        });
+                      },
+                      child: Text("=")),
+                  ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          operaciones += " + ";
+                        });
+                      },
+                      child: Text("+")),
                 ],
               )
             ],
@@ -146,5 +184,37 @@ class _HomePageState extends State<HomePage> {
         )
       ],
     );
+  }
+
+  int _calcular(String operacion) {
+    print(operacion);
+    int result = 0;
+    if (operacion.indexOf(" + ") != -1) {
+      List<String> terminos = operacion.split(" + ");
+      for (String valor in terminos) {
+        result += _calcular(valor);
+      }
+    } else if (operacion.indexOf(" - ") != -1) {
+      List<String> terminos = operacion.split(" - ");
+      result += _calcular(terminos.elementAt(0));
+      for (var i = 1; i < terminos.length; i++) {
+        result -= _calcular(terminos.elementAt(i));
+      }
+    } else if (operacion.indexOf(" / ") != -1) {
+      List<String> terminos = operacion.split(" / ");
+      result += _calcular(terminos.elementAt(0));
+      for (var i = 1; i < terminos.length; i++) {
+        result = result ~/ _calcular(terminos.elementAt(i));
+      }
+    } else if (operacion.indexOf(" x ") != -1) {
+      result = 1;
+      List<String> terminos = operacion.split(" x ");
+      for (String valor in terminos) {
+        result *= _calcular(valor);
+      }
+    } else {
+      result = int.parse(operacion);
+    }
+    return result;
   }
 }
